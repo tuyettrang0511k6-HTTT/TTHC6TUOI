@@ -44,7 +44,6 @@ def load_collection():
     )
 
     return collection
-
 # ================== 3. HÀM XỬ LÝ TRUY VẤN (RAG) ==================
 def query_rag(query: str, top_k: int):
     if not collection:
