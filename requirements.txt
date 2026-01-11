@@ -1,0 +1,14 @@
+streamlit
+chromadb
+sentence-transformers
+google-generativeai
+beautifulsoup4
+requests
+pandas
+urlparse
+hashlib
+uuid
+embedding_functions
+date
+json
+re
