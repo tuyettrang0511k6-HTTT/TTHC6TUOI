@@ -3,6 +3,26 @@ import streamlit as st
 import chromadb
 from google import genai
 from chromadb.utils import embedding_functions
+import streamlit as st
+import os
+import json
+
+import chromadb
+from chromadb.utils import embedding_functions
+from sentence_transformers import SentenceTransformer
+
+from google import genai
+
+# ====== CẤU HÌNH ======
+CHROMA_DB_PATH = "./chroma_db"
+
+# ====== KIỂM TRA API KEY ======
+if "GOOGLE_API_KEY" not in st.secrets:
+    st.error("❌ Chưa cấu hình GOOGLE_API_KEY trong Streamlit Secrets")
+    st.stop()
+
+# ====== KHỞI TẠO GEMINI CLIENT ======
+client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
 
 # ================== CẤU HÌNH ==================
 JSON_FILE = "/content/drive/RAG/all_procedures_normalized.json"  # Đường dẫn file JSON (sau chunk rule-based)
