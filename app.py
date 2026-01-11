@@ -1,8 +1,4 @@
-import os
-import streamlit as st
-import chromadb
-from google import genai
-from chromadb.utils import embedding_functions
+
 import streamlit as st
 import os
 import json
@@ -10,8 +6,6 @@ import json
 import chromadb
 from chromadb.utils import embedding_functions
 from sentence_transformers import SentenceTransformer
-
-from google import genai
 
 # ====== CẤU HÌNH ======
 CHROMA_DB_PATH = "./chroma_db"
@@ -22,7 +16,23 @@ if "GOOGLE_API_KEY" not in st.secrets:
     st.stop()
 
 # ====== KHỞI TẠO GEMINI CLIENT ======
-client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+import google.generativeai as genai
+
+# ====== KIỂM TRA API KEY ======
+if "GOOGLE_API_KEY" not in st.secrets:
+    st.error("❌ Chưa cấu hình GOOGLE_API_KEY trong Streamlit Secrets")
+    st.stop()
+
+# ====== CẤU HÌNH & KHỞI TẠO GEMINI ======
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# ====== CÁCH GỌI KHI ĐẶT CÂU HỎI ======
+# response = model.generate_content("Câu hỏi của bạn")
+# st.write(response.text)
+
+
+
 
 # ================== CẤU HÌNH ==================
 JSON_FILE = "/content/drive/RAG/all_procedures_normalized.json"  # Đường dẫn file JSON (sau chunk rule-based)
@@ -39,19 +49,18 @@ def get_embedding_function():
 @st.cache_resource
 def load_collection():
     chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-    embedding_func = get_embedding_function()
 
-    try:
-        collection = chroma_client.get_collection(
-            name=COLLECTION_NAME,
-            embedding_function=embedding_func  # cần để query đúng
-        )
-        #st.success(f"Collection '{COLLECTION_NAME}' đã load từ {CHROMA_DB_PATH}")
-    except Exception as e:
-        st.error(f"Không tìm thấy collection '{COLLECTION_NAME}' trong {CHROMA_DB_PATH}: {e}")
-        collection = None
+    embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(
+        model_name="all-MiniLM-L6-v2"
+    )
+
+    collection = chroma_client.get_or_create_collection(
+        name="tthc_collection",
+        embedding_function=embedding_func
+    )
 
     return collection
+
 # --- Load collection 1 lần ---
 collection = load_collection()
 
