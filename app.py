@@ -1,5 +1,6 @@
 import streamlit as st
 import json
+import os
 import chromadb
 from chromadb.utils import embedding_functions
 import google.generativeai as genai
@@ -7,7 +8,10 @@ import google.generativeai as genai
 # ================== CẤU HÌNH ==================
 CHROMA_DB_PATH = "chroma_db"
 COLLECTION_NAME = "tthc_collection"
-JSON_FILE = "/content/drive/RAG/all_procedures_normalized.json"
+
+# 🔑 LẤY ĐƯỜNG DẪN TUYỆT ĐỐI THEO FILE app.py (KHÔNG BAO GIỜ LỖI)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_FILE = os.path.join(BASE_DIR, "data", "all_procedures_normalized.json")
 
 EMBEDDING_MODEL = "BAAI/bge-m3"
 GEMINI_MODEL = "gemini-1.5-flash"
@@ -34,8 +38,7 @@ def load_collection():
     )
     return collection
 
-
-# ================== LOAD JSON → ADD VÀO CHROMA (1 LẦN) ==================
+# ================== LOAD JSON → ADD VÀO CHROMA (CHẠY 1 LẦN) ==================
 def load_json_to_chroma(collection, json_path):
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -57,15 +60,16 @@ def load_json_to_chroma(collection, json_path):
         ids=ids
     )
 
-
 # ================== KHỞI TẠO DB ==================
 collection = load_collection()
+
+# DEBUG an toàn (có thể xoá sau)
+st.sidebar.write("📄 JSON exists:", os.path.exists(JSON_FILE))
 
 if collection.count() == 0:
     st.warning("📥 Đang nạp dữ liệu vào Vector DB...")
     load_json_to_chroma(collection, JSON_FILE)
     st.success(f"✅ Đã nạp {collection.count()} chunks")
-
 
 # ================== HÀM RAG QUERY ==================
 def query_rag(query: str, top_k: int):
@@ -87,7 +91,6 @@ def query_rag(query: str, top_k: int):
         )
 
     return "\n\n".join(context_parts)
-
 
 # ================== GỌI GEMINI ==================
 def call_gemini(context, question):
@@ -113,7 +116,6 @@ Giữ nguyên dòng NGUỒN.
     model = genai.GenerativeModel(GEMINI_MODEL)
     response = model.generate_content(prompt)
     return response.text
-
 
 # ================== GIAO DIỆN STREAMLIT ==================
 st.set_page_config(
