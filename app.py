@@ -64,32 +64,6 @@ def load_collection():
 # --- Load collection 1 lần ---
 collection = load_collection()
 
-import uuid
-
-with st.sidebar:
-    st.markdown("## 📥 Nạp dữ liệu (bắt buộc)")
-
-    if st.button("Nạp dữ liệu mẫu"):
-        texts = [
-            "Thủ tục đăng ký khai sinh cho trẻ em dưới 6 tuổi được thực hiện tại UBND cấp xã.",
-            "Hồ sơ đăng ký khai sinh gồm giấy chứng sinh, giấy tờ tùy thân của cha mẹ.",
-            "Trẻ em dưới 6 tuổi được cấp thẻ bảo hiểm y tế miễn phí."
-        ]
-
-        metadatas = [
-            {"hierarchy": "Khai sinh", "url": "https://dichvucong.gov.vn"},
-            {"hierarchy": "Khai sinh", "url": "https://dichvucong.gov.vn"},
-            {"hierarchy": "BHYT", "url": "https://baohiemxahoi.gov.vn"},
-        ]
-
-        collection.add(
-            documents=texts,
-            metadatas=metadatas,
-            ids=[str(uuid.uuid4()) for _ in texts]
-        )
-
-        st.success("✅ Đã nạp dữ liệu mẫu!")
-
 
 def query_rag(query: str, chat_history: list, top_k: int):
     # Retrieval với top_k động
